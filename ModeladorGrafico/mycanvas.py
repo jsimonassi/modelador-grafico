@@ -122,7 +122,6 @@ class MyCanvas(QtOpenGL.QGLWidget):
         glOrtho(self.m_L, self.m_R, self.m_B, self.m_T, -1.0, 1.0)
 
     def fitWorldToViewport(self):
-        print("fitWorldToViewport")
         if self.m_model == None:
             return
         #self.m_L,self.m_R,self.m_B,self.m_T=self.m_model.get...
@@ -150,8 +149,6 @@ class MyCanvas(QtOpenGL.QGLWidget):
     def mouseReleaseEvent(self, event):
         pt0_U = self.convertPtCoordsToUniverse(self.m_pt0)
         pt1_U = self.convertPtCoordsToUniverse(self.m_pt1)
-        print("Ponto 1: ", pt0_U)
-        print("Ponto 2: ", pt1_U)
         self.m_model.setCurve(pt0_U.x(),pt0_U.y(),pt1_U.x(),pt1_U.y())
         #self.m_model.setCurve(self.m_pt0.x(),...,...,...)
         self.m_buttonPressed = False
