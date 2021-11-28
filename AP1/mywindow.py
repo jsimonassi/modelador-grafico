@@ -61,4 +61,4 @@ class MyWindow(QMainWindow):
             QMessageBox.about(self, "Erro", "Valores Invalidos")
             return
         dlg.close()
-        print("Recebi isso: ", x, y)
+        self.canvas.generateGrid(int(x), int(y))

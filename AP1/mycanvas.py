@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from OpenGL.GL import *
 from hetool import HeController, HeModel, HeView, Tesselation
+from mymodel import MyPoint
 
 class MyCanvas(QtOpenGL.QGLWidget):
     def __init__(self):
@@ -56,6 +57,44 @@ class MyCanvas(QtOpenGL.QGLWidget):
         self.m_L,self.m_R,self.m_B,self.m_T=self.heview.getBoundBox()
         self.scaleWorldWindow(1.10)
         self.update()
+    
+    def generateGrid(self, xTam, yTam):
+        
+        #Gerando pontos na horizontal:
+        interval = self.m_w / xTam
+        current_point = 0
+        x_points = []
+        y_points = []
+        for _ in range(xTam):
+            pt = [self.convertPtCoordsToUniverse(QtCore.QPoint(current_point,0)).x(),self.convertPtCoordsToUniverse(QtCore.QPoint(current_point,0)).y()]
+            x_points.append(pt)
+            current_point += interval
+
+        current_point = 0
+        interval = self.m_h / yTam
+        for _ in range(yTam):
+            pt = [self.convertPtCoordsToUniverse(QtCore.QPoint(0,current_point)).x(),self.convertPtCoordsToUniverse(QtCore.QPoint(0,current_point)).y()]
+            y_points.append(pt)
+            current_point += interval
+
+        print("xPoints: ", x_points)
+        print("yPoints: ", y_points)
+        patches = self.heview.getPatches() # retalhos, regioes construídas automaticamente
+
+        for i in x_points:
+            for j in y_points:
+                for pat in patches:
+                    aux = MyPoint(i[0],j[1])
+                    if pat.isPointInside(aux):
+                        self.hecontroller.insertPoint([i[0], j[1]], self.tol) #Todo: Mudar para minha Estrutura de dados
+                        print("Adicionando o ponto: ", [i[0], j[1]])
+                
+        self.update()
+        self.paintGL()
+
+
+        # print("OPAAA:", self.heview.getBoundBox(), "OPAA@:::", self.m_w, self.m_h)
+        
     
     def scaleWorldWindow(self,_scaleFac):
         # Compute canvas viewport distortion ratio.
@@ -121,14 +160,12 @@ class MyCanvas(QtOpenGL.QGLWidget):
             self.update()
     
     def mouseReleaseEvent(self, event):
-        print(self.m_pt0.x(), self.m_pt0.y())
-        print(self.m_pt1.x(), self.m_pt1.y())
         pt0_U = self.convertPtCoordsToUniverse(self.m_pt0)
         pt1_U = self.convertPtCoordsToUniverse(self.m_pt1)
 
-        snapped, x1, y1 = self.heview.snapToPoint(pt0_U.x(),pt0_U.y(), 10)
-        snapped2, x2, y2 = self.heview.snapToPoint(pt1_U.x(),pt1_U.y(), 10)
-        print(snapped, snapped2)
+        snapped, x1, y1 = self.heview.snapToSegment(pt0_U.x(),pt0_U.y(), 1)
+        snapped2, x2, y2 = self.heview.snapToSegment(pt1_U.x(),pt1_U.y(), 1)
+        print(snapped, snapped2) #Dúvida: Sempre retorna False
         # self.m_model.setCurve(pt0_U.x(),pt0_U.y(),pt1_U.x(),pt1_U.y())
 
         self.hecontroller.insertSegment([x1, y1, x2, y2], self.tol)
@@ -173,11 +210,9 @@ class MyCanvas(QtOpenGL.QGLWidget):
             glEnd()
             
         if not(self.heview.isEmpty()):
-            print("teste")
             patches = self.heview.getPatches() # retalhos, regioes construídas automaticamente
             glColor3f(3.0, 0.0, 1.0)
             for pat in patches:
-                print(len(patches))
                 triangs = Tesselation.tessellate(pat.getPoints())
                 for triang in triangs:
                     glBegin(GL_TRIANGLES)
@@ -187,7 +222,6 @@ class MyCanvas(QtOpenGL.QGLWidget):
 
             segments = self.heview.getSegments()
             glColor3f(0.0, 1.0, 1.0)
-            print(len(segments))
             for curv in segments:
                 ptc = curv.getPointsToDraw()
                 glBegin(GL_LINES)
