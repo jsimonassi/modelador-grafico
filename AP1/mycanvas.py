@@ -56,7 +56,7 @@ class MyCanvas(QtOpenGL.QGLWidget):
         self.m_L,self.m_R,self.m_B,self.m_T=self.heview.getBoundBox()
         self.scaleWorldWindow(1.10)
         self.update()
-
+    
     def scaleWorldWindow(self,_scaleFac):
         # Compute canvas viewport distortion ratio.
         vpr = self.m_h / self.m_w
