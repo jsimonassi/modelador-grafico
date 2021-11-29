@@ -23,6 +23,9 @@ class MyWindow(QMainWindow):
         grid = QAction("Gerar Malha", self)
         tb.addAction(grid)
 
+        export_json = QAction("Exportar JSON", self)
+        tb.addAction(export_json)
+
         tb.actionTriggered[QAction].connect(self.tbpressed)
 
     def tbpressed(self, a):
@@ -30,6 +33,9 @@ class MyWindow(QMainWindow):
             self.canvas.fitWorldToViewport()
         elif a.text() == "Gerar Malha":
             self.generateGridDialog()
+        elif a.text() == "Exportar JSON":
+            if self.model.export_json():
+                QMessageBox.about(self, "Sucesso", "O arquivo data.json foi salvo na raiz do projeto")
 
     def generateGridDialog(self):
         dlg = QDialog()
