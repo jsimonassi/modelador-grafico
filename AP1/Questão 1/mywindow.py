@@ -52,8 +52,8 @@ class MyWindow(QMainWindow):
         inputX.resize(50,20)
         inputY.move(110, 70)
         inputY.resize(50,20)
-        inputX.setValidator(QIntValidator(0, 100))
-        inputY.setValidator(QIntValidator(0, 100))
+        inputX.setValidator(QIntValidator(1, 1000))
+        inputY.setValidator(QIntValidator(1, 1000))
 
         b1 = QPushButton("ok",dlg)
         b1.move(75,100)
@@ -68,3 +68,4 @@ class MyWindow(QMainWindow):
             return
         dlg.close()
         self.canvas.generateGrid(int(x), int(y))
+
